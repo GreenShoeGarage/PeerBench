@@ -1,0 +1,24 @@
+{
+  "name": "peerbench",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first peer-to-peer collaboration workbench",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server/peerbench.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/core.test.mjs tests/server.test.mjs",
+    "test:browser": "node tests/browser.cjs"
+  },
+  "dependencies": {
+    "yjs": "13.6.33",
+    "ws": "8.18.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

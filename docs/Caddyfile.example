@@ -1,0 +1,4 @@
+# Replace the hostname. Caddy manages HTTPS for a domain that points to this host.
+peerbench.example.com {
+    reverse_proxy 127.0.0.1:8787
+}
