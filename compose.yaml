@@ -9,6 +9,8 @@ services:
       DATA_DIR: /app/data
       MAX_ROOM_MB: "64"
       MAX_ROOMS: "200"
+      ENABLE_ATTACHMENT_ARCHIVE: "0"
+      MAX_ATTACHMENT_MB: "256"
       # If the frontend lives on a different host, set its exact origin(s):
       # ALLOWED_ORIGINS: https://your-static-site.example
     volumes:

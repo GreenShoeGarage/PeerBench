@@ -1,79 +1,73 @@
-# PEERBENCH v1.0.0 verification
+# PEERBENCH v1.2.0 verification
 
-**Result: 25 named checks passed** across the model/server suite (6), browser workflow suite (16), and release/recovery suite (3). No uncaught browser JavaScript errors were observed in the complete workflow suite.
-
-Verification completed October 4, 2026 (America/New_York; October 5 UTC).
+**45 named checks passed:** model/server (10), original browser workflows (18), standalone/recovery (3), HTTPS reconnect (1), and v1.2 workflows (13). No uncaught JavaScript errors were observed in either complete browser workflow suite. Completed October 5, 2026 UTC.
 
 ## Environment
 
-- Linux execution environment, Node.js 24.19.0.
-- Headless Chromium 153 driven through Playwright 1.62.1.
-- Real IndexedDB, service workers, WebSockets, Web Crypto, and RTCPeerConnection.
-- Isolated browser contexts represent independent device storage.
-- A local STUN responder supplies loopback candidates for WebRTC in the isolated network. Actual encrypted data channels were established; this was not a simulated peer API.
-- Default configuration with no STUN also exercised the real encrypted WebSocket relay path.
-- Desktop: 1440 × 1000. Mobile layout: 390 × 844.
+- Linux, Node.js 24.19.0; headless Chromium 153 through Playwright 1.62.1.
+- Real IndexedDB, service workers, Web Crypto, WebSockets, and RTCPeerConnection in isolated browser contexts.
+- The original browser suite uses a local test STUN responder to obtain loopback WebRTC candidates. It establishes actual encrypted data channels. Recovery and v1.2 suites also exercise encrypted WebSocket relay without STUN.
+- Desktop 1440 × 1000; mobile layout 390 × 844. Viewport emulation is not a physical mobile device test.
+- Local self-signed TLS proxy verifies HTTPS/WSS and secure-context behavior. The test browser explicitly trusts that local certificate; no public deployment or certificate was provisioned.
 
-## Model and server suite — 6 passed
+## Model and server — 10 checks
 
-1. Concurrent offline text edits converge with both contributions retained.
-2. Different task-field edits merge; duplicate updates are idempotent.
-3. Encryption round trip; incorrect key, incorrect room, and modified ciphertext are rejected.
-4. Portable backup validation and state preservation; malformed/unsupported backups rejected.
-5. Valid invitation parsing and malformed/unsafe server URL rejection.
-6. Server relay, incorrect capability rejection, persisted replay after process restart, no plaintext content in the SQLite file, static-file allowlist, and Origin rejection.
+Concurrent offline text convergence; independent task-field merging; duplicate update idempotence; encryption round trip and rejection of wrong key/room/tampering; schema-1 backup and invitation validation; scalar conflict retention and resolution; selective note restore preserving earlier text and unrelated fields; relay/authentication/durable replay/static-file/Origin boundaries; checkpoint recovery and capacity; optional attachment hosting.
 
-## Browser workflow suite — 16 passed
+The capacity/checkpoint test joins ten authenticated device sockets and rejects an eleventh. It interrupts one checkpoint, commits another while a new tail update arrives, rejects a reused token, and restarts the process to verify checkpoint and tail survival. It tests protocol capacity, not a ten-browser WebRTC mesh.
 
-1. Create a sample room and render all board stages.
-2. Join through a private invitation and establish a real WebRTC data channel.
-3. Concurrent notebook edits converge without losing either contribution.
-4. Independent offline edits merge after explicit disconnection and reconnection.
-5. Chat and task changes reach a second browser.
-6. Task search, duplication, trash, and restoration.
-7. Chunked peer attachment transfer with checksum verification; downloaded bytes match.
-8. Complete JSON backup includes local attachment bytes and excludes invitation keys.
-9. Light, dark, and high-contrast theme switching.
-10. Mobile layout without horizontal page overflow; navigation opens and closes.
-11. Document-style print view and a two-page A4 PDF rendered by Chromium.
-12. A third device retrieves the encrypted archive with original peers disconnected.
-13. Backup restoration into a separate room, including attachment bytes.
-14. Offline app reload, offline editing, and persistence through another offline reload.
-15. Fresh empty room, note creation, text-only undo/redo, deletion, and restoration.
-16. No uncaught browser JavaScript errors across those workflows.
+Attachment checks cover disabled-by-default hosting, idempotent chunk replacement, quota rejection, persisted encrypted bytes after restart, resume frontier reporting, deletion, and absence of known plaintext attachment content in SQLite.
 
-## Release and recovery suite — 3 passed
+## Existing browser workflows — 18 checks
 
-1. A copied standalone release runs from a clean temporary directory with no node_modules.
-2. A 2 MiB encrypted relay file transfer is interrupted, the receiving browser reloads, and the transfer resumes; final bytes match exactly.
-3. A saved snapshot restores earlier note text into a new room while retaining the original room.
+Create/sample; real WebRTC invitation; simultaneous notebook edits; offline edits and reconnect; chat/tasks; search/duplicate/trash/restore; peer attachment transfer with exact byte comparison; shared note revision comparison and restore; local and encrypted server compaction; backup with local attachment bytes and without invitation keys; three themes; mobile navigation without overflow; printable project report; late arrival from archive; independent backup restore; offline reload/edit/reload; empty-room note undo/redo and recovery; no uncaught page errors.
 
-## Visual review
+## Standalone and recovery — 3 checks
 
-Reviewed the welcome view, desktop board, mobile board, and dark theme. Corrected a mobile navigation overlap. Note undo was scoped to the active note’s text so typing undo does not remove a newly created note. Theme screenshots should be taken with animations disabled or after transitions finish.
+The prebuilt release runs after being copied to a clean directory without node_modules. A 2 MiB relay transfer is interrupted, the receiving browser reloads, and resumed output matches every byte. A snapshot restores prior note text into a separate room.
+
+## HTTPS recovery — 1 check
+
+The browser connects over HTTPS/WSS through a local TLS proxy. The backend stops, a note is edited, and automatic retry reconnects after restart. The latest text survives and receives an encrypted-archive acknowledgement.
+
+## v1.2 workflows — 13 checks
+
+1. Markdown preview renders headings/formatting while removing scripts, event handlers, images, and unsafe link schemes.
+2. Rich-text formatting and edits synchronize across browsers, with a visible remote caret and collaborator name available on its flag.
+3. Material links open a referenced task.
+4. Shared shapes, notes, connector, sketch, undo/redo, zoom/fit, and SVG/PNG exports.
+5. A 12 MiB attachment exceeds the previous limit; encrypted hosting pauses and resumes.
+6. Download pauses, reloads, resumes from persisted chunks, verifies SHA-256, and matches source bytes.
+7. Whiteboard images reuse room attachments and embed bytes in SVG export.
+8. Notebook and whiteboard fit a 390-pixel viewport without page overflow.
+9. A late browser restores rich content, drawing objects, and archived file bytes with original holders offline.
+10. Cancel clears a pending transfer; removing a hosted copy keeps local downloaded bytes.
+11. Print/PDF report includes formatted notes and a vector whiteboard.
+12. Backup restoration and offline reload preserve formatted text, drawing objects, and complete attachments.
+13. No uncaught page errors throughout these workflows.
+
+## Review and fixes
+
+Reviewed desktop and mobile notebook/whiteboard screenshots, existing board themes, and printable output. Corrected event delegation that disabled the rich editor when an ancestor matched a note selector. File progress updates now retain buttons and focus instead of replacing controls every chunk. A fresh queue job has its own identity so an immediate retry cannot revive an old paused operation. Whiteboard inspectors save only changed fields to avoid overwriting concurrent unrelated edits.
+
+Dependency review upgraded ws to 8.22.0 and DOMPurify to 3.4.16. The recorded production audit reports no high, critical, or moderate findings, and one low Quill 2.0.3 HTML-export advisory. PEERBENCH sanitizes every Quill HTML preview, report, and export with DOMPurify; it never inserts or downloads raw getSemanticHTML output. This mitigation does not substitute for an independent security review.
 
 ## Reproduce
 
-For data/server checks:
-
 ```sh
 npm ci
+npm run build
 npm test
-```
-
-For browser checks, install Playwright and its Chromium separately:
-
-```sh
 npm install --no-save playwright
 npx playwright install chromium
 node tests/browser.cjs
 node tests/recovery.cjs
+node tests/https.cjs
+node tests/v12.cjs
 ```
 
-An existing installation can be supplied through `PLAYWRIGHT_MODULE` and an existing browser executable through `CHROMIUM_PATH`. Test servers start on localhost ports 18787, 18789, and 18987. The browser suite starts a local test STUN responder on UDP 19303. Generated output is written under tests/out/ and is excluded from the release package.
+An existing installation can be supplied via PLAYWRIGHT_MODULE and CHROMIUM_PATH. HTTPS verification also requires OpenSSL. Test servers use localhost ports 18787, 18789, 18791, 18793/18794, and 18987; test STUN uses UDP 19303. Tests create disposable data directories. Generated output under tests/out is excluded from releases. The runtime application needs neither Playwright nor npm installation.
 
-## Limits of verification
+## Remaining validation
 
-No external deployment, user-account connection, real-world NAT traversal, configured external TURN service, Docker execution, 10-device load, Safari, Firefox, or physical iOS/Android device was tested. The included Docker and reverse-proxy configurations are deployment aids, not evidence of a deployed service. Browser storage eviction, hostile-room denial of service, cryptographic protocol review, and extended archival-scale operation need further validation before uses that require those guarantees.
-
-This release is intended for small, trusted teams, with all members having equal editing access. See README for quotas, recovery boundaries, and data ownership details.
+External deployment, real-world NAT/TURN, Docker execution, Safari, Firefox, ten-browser WebRTC mesh performance, physical iOS/Android devices, long-duration archival load, browser eviction, and hostile-room denial of service remain unverified. The environment had no Docker, Firefox, or Safari available. Supplied deployment files are aids, not evidence of a live deployment. The app is intended for small trusted teams with equal editing access; see README for storage, memory, and recovery boundaries.

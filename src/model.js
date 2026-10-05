@@ -1,6 +1,6 @@
 import * as Y from 'yjs';
 export { Y };
-export const VERSION='1.0.0';
+export const VERSION='1.2.0';
 export const uid=()=>crypto.randomUUID();
 export const b64=bytes=>{let s='';for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(s);};
 export const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));

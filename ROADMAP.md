@@ -9,18 +9,18 @@ Delivered as four implementation batches:
 3. Attachment transfer, integrity checks, partial-download recovery, snapshots, backup/restore, and printable output.
 4. Responsive and theme review, end-to-end verification, standalone server bundling, and deployment documentation.
 
-## v1.1 — long-lived rooms
+## v1.1 — long-lived rooms (implemented)
 
 - Encrypted archive compaction with recovery from interrupted checkpoints.
 - More informative scalar-field conflict review and selective version history.
 - Operational room management and quota displays in the app.
-- Broader 10-device, Safari, Firefox, mobile-network, and configured TURN validation.
+- Ten-device protocol capacity verified. External TURN, physical mobile, Safari, Firefox, and Docker execution remain deployment validation tasks; unavailable in this environment.
 
-## v1.2 — a richer shared surface
+## v1.2 — a richer shared surface (implemented)
 
-- Optional notebook preview / rich-text editing with tested collaborative bindings.
-- Small shared whiteboard for diagrams and sketches.
-- More durable large-file transfers and optional encrypted attachment hosting.
+- Sanitized preview, Quill/Yjs shared formatting, cursor awareness, material links, and formatted history.
+- Shared shapes, connectors, sticky notes, sketches, raster images, inspector, pan/zoom, and SVG/PNG exports.
+- Persistent transfer queues with pause/cancel/retry, chunk recovery, 50 MiB files, and optional encrypted attachment hosting.
 
 ## v2 candidates
 

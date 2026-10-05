@@ -2,7 +2,7 @@
 
 **Make together. Keep your work.** A local-first collaboration room for makers, small teams, workshops, and project partners.
 
-Version **1.0.0** · Green Shoe Garage · **GNU GPL v3 only**
+Version **1.2.0** · Green Shoe Garage · **GNU GPL v3 only**
 
 **CREATE → INVITE → MAKE → KEEP**
 
@@ -24,13 +24,16 @@ Create a room, or choose **Explore a sample**. All rooms start local. Choose **I
 
 ## What works
 
-- Multiple rooms with editable names and private invitation links.
+- Multiple rooms with editable names, local archive/reopen, storage usage, compaction, and private invitation links.
+- Field-level task history, reviewable concurrent edits, named notebook revisions, comparisons, and selective restoration.
+- Automatic reconnect with bounded exponential backoff; downloadable connection diagnostics exclude invitation keys, credentials, names, and IP addresses.
 - Task boards with three stages, descriptions, assignees, dates, labels, priorities, search, filtering, sorting, duplication, and trash recovery. Move cards by dragging or by changing the stage in their editor.
-- Shared plain-text / Markdown notes with concurrent Yjs text editing, note titles, local undo/redo, and Markdown export.
+- Shared notebook with Text, sanitized Markdown Preview, and Format modes. Quill + y-quill bind formatting to the existing Y.Text; encrypted ephemeral awareness carries collaborator cursors. Saved revisions include formatting. Material links open tasks, notes, and files within the room. Plain notes export Markdown; formatted notes export sanitized HTML.
+- Shared whiteboard: sticky notes, rectangles, ellipses, anchored connectors, freehand sketches, and raster images from room files. Select/move, numeric inspector, keyboard movement, undo/redo, pan, zoom, fit, and SVG/PNG export. Limit: 500 visible objects, 1,500 points per stroke. Diagrams and formatted notes appear in the printable report.
 - Persistent room conversation with display names and timestamps.
 - WebRTC data channels, encrypted signaling, and encrypted WebSocket relay fallback. The UI reports actual connection state.
 - Optional encrypted server archive for notes, cards, conversation, and file metadata. Later arrivals can catch up while other devices are closed.
-- File attachments: up to 10 MiB per file and 100 MiB of attachment metadata per room, including files in trash. Explicit downloads, 32 KiB transfer chunks, backpressure, SHA-256 checks, and resumable partial downloads held locally. Transfers can resume from another peer holding the same file.
+- File attachments: up to 50 MiB each and 250 MiB per room including trash. Persistent sequential queues, pause/cancel/retry, chunk-level recovery after reload, SHA-256 verification, and optional encrypted attachment hosting. Downloads can use a connected holder or an archived copy.
 - IndexedDB autosave with separate local-save, peer-receipt, and server-archive indicators.
 - JSON backup/restore, local snapshots, recoverable task/note/file trash, and fresh empty rooms.
 - A printable project report suitable for Save as PDF.
@@ -39,12 +42,13 @@ Create a room, or choose **Explore a sample**. All rooms start local. Choose **I
 
 ## What goes on a static host?
 
-Copy these **seven files together**, preserving their names:
+Copy these **eight files together**, preserving their names:
 
 ```text
 index.html
 app.js
 app.css
+notebook.css
 sw.js
 manifest.webmanifest
 icon.svg
@@ -67,7 +71,7 @@ The static files provide offline individual use. Cross-device collaboration also
 
 ## Host the complete app
 
-The Node server serves the seven static files and `/connect` from one origin. Put it behind an HTTPS reverse proxy; an example Caddy configuration is in `docs/Caddyfile.example`.
+The Node server serves the eight static files and `/connect` from one origin. Put it behind an HTTPS reverse proxy; an example Caddy configuration is in `docs/Caddyfile.example`.
 
 ```sh
 # Node: configurable port and durable directory
@@ -132,13 +136,13 @@ Use a properly configured TURN service such as coturn, appropriate firewall rule
 | Invitation key | Local room record; invitation URL fragment until accepted | Never sent to the server |
 | Authentication capability | Derived from room key | SHA-256 derived capability used for room access |
 | File metadata | Shared with room members | Encrypted with shared records |
-| File bytes | Only on devices that added or received them | Forwarded as ciphertext if relay is needed; not archived |
+| File bytes | On devices that added or received them; partial downloads stored as chunks | Relayed as ciphertext; archived only when hosting is enabled and a member explicitly uploads a copy |
 | Snapshots | Local to the device | Not separately uploaded |
 | Exported backup | A plaintext download | Not uploaded automatically |
 
 The service can see room IDs, timing, message sizes, IP addresses, and the room access capability. It cannot decrypt content without the invitation key. The HTTPS host delivers executable app code, so users must trust the host to serve the intended application. This is a trusted-team collaboration tool; it has not undergone an independent cryptographic audit.
 
-Everyone with an invitation has full read/write access. Names are self-selected, not verified identities. There are no enforced read-only roles, member revocation, key rotation, or authenticated audit trail in v1.0. To exclude a former collaborator, restore/export into a new room and share its new invitation only with current members; prior copies cannot be recalled.
+Everyone with an invitation has full read/write access. Names are self-selected, not verified identities. There are no enforced read-only roles, member revocation, key rotation, or authenticated audit trail in v1.2. To exclude a former collaborator, restore/export into a new room and share its new invitation only with current members; prior copies cannot be recalled.
 
 The archive option is applied by each connected device. Turning it off stops that device uploading new archive entries; it does not erase entries already stored, prevent another member from archiving, or remove copies on other devices.
 
@@ -159,13 +163,29 @@ Back up server data using `node server/admin.mjs backup /absolute/path/backup.sq
 
 ## Boundaries and roadmap
 
-This release is for small, trusted groups. It supports plain text/Markdown rather than rich-text rendering. Concurrent edits to different task fields merge; simultaneous changes to the same scalar field converge to one CRDT-selected value. Snapshots are recovery points, not per-edit audit history.
+This release is for small, trusted groups. Rich text preserves the existing text CRDT and stores formatting attributes alongside it. Text mode shows the underlying text; editing an unchanged span retains its attributes. Markdown preview interprets unformatted notes; formatted notes preview their rich content. Raw HTML, embedded scripts, remote images, and unsafe link schemes are not rendered. A notebook link is scoped to its current room. Concurrent edits to different task fields merge; simultaneous changes to a task field retain reviewable candidate values in shared history. Choose one in History & recovery → Shared history & conflicts. Old v1.0 clients do not record history; changes made in those clients cannot be reconstructed. Save notebook revisions explicitly; keystrokes are not individually audited.
 
-File transfer requires at least one connected holder. Files are capped at 10 MiB and the room attachment total at 100 MiB to keep browser memory and portable backups manageable. Backup imports are capped at 150 MiB. Files and full shared-state transfers are buffered in memory. Rooms are not intended for media libraries or very large histories.
+Peer file transfer requires a connected holder. Archived copies can be downloaded without that holder online. Files are capped at 50 MiB and the room attachment total at 250 MiB; backup imports are capped at 400 MiB. Files transfer and persist in 32 KiB chunks. SHA-256 verification reads one complete file into memory; JSON backup/export also buffers the backup. This is bounded larger-file support, not an unbounded streaming media store. Mobile browsers with little free memory should use smaller rooms. The shared-state encrypted envelope remains limited to 8 MiB; long histories eventually need a new room. Compaction reduces duplication, not total content.
 
-The encrypted archive is append-only, with a 64 MiB default per-room quota. Reconnection snapshots consume space; automatic encrypted-log compaction is a future improvement. At quota, the app reports the failure and local work remains available. Export/restore to a new room before retiring the old archive.
+The encrypted archive has a 64 MiB default per-room quota. Use Room actions → Storage & archive to compact it. A client replays the stored updates, encrypts a full checkpoint, and the server atomically replaces only the covered records. Updates arriving during compaction survive. Interrupted or expired checkpoints leave the old archive intact. Compaction retains content and revision history; it is not a history purge. Local compaction merges IndexedDB records within one transaction, including writes from other tabs. At quota, local work remains available; compact or export/restore to a new room.
 
-Future milestones: v1.1 selective history and archive compaction; v1.2 richer notebook/whiteboard tools; v2 authenticated identities, key rotation, fine-grained access, and optional media sessions. See `ROADMAP.md`.
+Next: deployment validation on external TURN, Safari/Firefox, physical mobile networks, and Docker; v2 candidates include authenticated identities, key rotation, enforceable access controls, and optional media sessions. See `ROADMAP.md`.
+
+## Optional encrypted attachment hosting
+
+Hosting is **off by default**. Set `ENABLE_ATTACHMENT_ARCHIVE=1` on the companion server, then restart it. `MAX_ATTACHMENT_MB` defaults to **256 MiB of encrypted storage per room**; encryption and encoding use more space than the original files. These limits are separate from the record archive.
+
+Use **Files → Archive encrypted copy** for each file. No attachment is uploaded automatically. Use **Get from archive** on another device. Upload and download queues pause, retry, and recover their position after reload; a queued transfer restored after a reload starts paused. Cancel discards local partial-download bytes. Canceling an upload preserves already uploaded chunks for a future retry; use **Remove archive copy** after completing the upload, or the local operator’s room deletion, to erase hosted bytes. Server operators can inspect attachment usage with the admin tool. Removing an archive copy does not remove downloaded device copies. Turning hosting off blocks new uploads while allowing existing downloads and removal.
+
+The server stores only encrypted chunks and opaque room/file/chunk identifiers. The room key encrypts each chunk with fresh AES-GCM nonces. The recipient verifies the complete file’s SHA-256 against encrypted shared metadata. The host can still observe sizes, timing, IDs, and access capabilities. Names, content, and hashes are in encrypted messages. Shared metadata may advertise a copy that an operator has since removed; a failed retrieval offers retry or peer download.
+
+## Upgrade from v1.0 / v1.1
+
+1. Export browser backups and make a consistent SQLite backup.
+2. Replace the static files and prebuilt server, retaining the data directory and config. The server adds an attachment table without rewriting existing records.
+3. Close existing app tabs, then reopen so the waiting service worker activates. The database name and schema-1 backups remain compatible.
+
+New releases read old rooms and backups. Old clients retain unknown CRDT maps but do not display whiteboards or preserve full rich-text behavior in their UI, do not record task history, and retain their 10 MiB file limit. Use v1.2 on all active devices for the new workflows. Restored backups create a new room and clear hosted-copy flags because the new room has a different archive. Local snapshots remain device-local; portable backups include only complete attachments held on the exporting device.
 
 ## Develop and verify
 
@@ -177,6 +197,6 @@ npm run build
 npm test
 ```
 
-The build bundles Yjs into `app.js` and ws into `server/peerbench.mjs`. Node built-ins remain external. Browser integration tests are in `tests/browser.cjs`; install Playwright separately to run them, as described in `TEST-REPORT.md`.
+The build bundles the notebook libraries, sanitizer, and Yjs into `app.js` and ws into `server/peerbench.mjs`. Node built-ins remain external. Browser integration tests are in `tests/browser.cjs`; install Playwright separately to run them, as described in `TEST-REPORT.md`.
 
 See `TEST-REPORT.md` for checks performed and their limits. Application code is GPL-3.0-only; dependency notices are retained in `THIRD-PARTY-NOTICES.md` and `vendor/`.

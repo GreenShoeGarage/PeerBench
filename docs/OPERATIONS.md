@@ -23,7 +23,7 @@ Restart the server afterward. Connected devices hold their own copies; reconnect
 
 ## Updates
 
-Keep the `data/` directory or attached volume. Replace the seven static files and the prebuilt server together. Restart Node. Close all existing tabs once to allow the new service worker to activate, then reopen the app. Client storage and JSON backups use schema 1. No migration is required for this initial release.
+Keep the `data/` directory or attached volume. Replace the eight static files and the prebuilt server together. Restart Node. Close all existing tabs once to allow the new service worker to activate, then reopen the app. Client storage and JSON backups use schema 1. Existing browser records remain compatible; the server creates the new attachment table on startup.
 
 ## Resource limits
 
@@ -42,3 +42,11 @@ Plain HTTP on localhost works because browsers treat localhost as a secure conte
 7. If the archive is full, export a backup and restore into a new room; automatic log compaction is not in this release.
 
 The service does not contact public STUN, TURN, or signaling hosts by default. A served config.json is public. Do not embed privileged permanent credentials in it.
+
+## v1.1 checkpoints and v1.2 attachments
+
+The app’s Storage & archive dialog exposes usage and explicit encrypted record compaction. The server captures a replay frontier, the client applies all replayed updates and encrypts a checkpoint, and a single SQLite transaction replaces only records at or below that frontier. Updates after the frontier remain. A process interruption before commit retains the previous log; a committed checkpoint is durable in WAL. Expired tokens cannot commit. Room keys are never available to the operator, so the server cannot compact independently. A malicious room member can still submit bad records; all members are trusted editors.
+
+`ENABLE_ATTACHMENT_ARCHIVE=1` permits explicit encrypted file uploads. It defaults to off. `MAX_ATTACHMENT_MB=256` is a separate per-room ciphertext quota. Disabling uploads retains download/delete access to existing chunks. `admin.mjs list` reports record and attachment bytes; database backup includes both. `admin.mjs delete ROOM_ID --confirm` deletes the room’s encrypted records and attachment chunks. Stop active use of that room before deleting it; connected clients can otherwise recreate records. Partial canceled uploads consume quota until resumed or removed.
+
+Upgrade all active clients for whiteboards, rich formatting, and larger attachments. Close old tabs so the new service worker activates; do not clear site data to update. Keep all eight static files, including notebook.css, together.

@@ -1,6 +1,6 @@
 {
   "name": "peerbench",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "description": "Local-first peer-to-peer collaboration workbench",
@@ -12,11 +12,20 @@
     "start": "node server/peerbench.mjs",
     "build": "node scripts/build.mjs",
     "test": "node --test tests/core.test.mjs tests/server.test.mjs",
-    "test:browser": "node tests/browser.cjs"
+    "test:browser": "node tests/browser.cjs",
+    "test:v12": "node tests/v12.cjs",
+    "test:recovery": "node tests/recovery.cjs",
+    "test:https": "node tests/https.cjs"
   },
   "dependencies": {
-    "yjs": "13.6.33",
-    "ws": "8.18.3"
+    "dompurify": "3.4.16",
+    "marked": "17.0.1",
+    "quill": "2.0.3",
+    "quill-cursors": "4.0.4",
+    "ws": "8.22.0",
+    "y-protocols": "1.0.6",
+    "y-quill": "1.0.0",
+    "yjs": "13.6.33"
   },
   "devDependencies": {
     "esbuild": "0.25.12"

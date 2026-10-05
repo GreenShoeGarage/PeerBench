@@ -1,7 +1,7 @@
 FROM node:24-bookworm-slim
 ENV NODE_ENV=production PORT=8787 DATA_DIR=/app/data
 WORKDIR /app
-COPY --chown=node:node index.html app.js app.css sw.js manifest.webmanifest icon.svg config.json ./
+COPY --chown=node:node index.html app.js app.css notebook.css sw.js manifest.webmanifest icon.svg config.json ./
 COPY --chown=node:node server/peerbench.mjs server/admin.mjs ./server/
 RUN mkdir -p /app/data && chown node:node /app/data
 USER node

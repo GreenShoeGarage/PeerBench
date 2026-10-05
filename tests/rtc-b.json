@@ -1,0 +1,96 @@
+{
+  "status": "1 WebRTC connection · Encrypted server copy saved · Peer receipt confirmed",
+  "pcs": [
+    {
+      "state": "connected",
+      "ice": "connected",
+      "gathering": "complete",
+      "local": {
+        "type": "offer",
+        "sdp": "v=0\r\no=- 3824217328240181346 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=ice-ufrag:uxFq\r\na=ice-pwd:476rb89YT2kZ3LuL4p2U7BTe\r\na=ice-options:trickle\r\na=fingerprint:sha-256 EE:81:68:72:D6:70:04:BE:A0:19:DE:83:62:BC:A2:22:EA:FD:AF:73:7D:CD:7C:42:1D:78:D8:55:0D:78:58:30\r\na=setup:actpass\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"
+      },
+      "remote": {
+        "type": "answer",
+        "sdp": "v=0\r\no=- 8358909935802107996 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 58185 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 127.0.0.1\r\na=candidate:3659098809 1 udp 1677729535 127.0.0.1 58185 typ srflx raddr 0.0.0.0 rport 0 generation 0 network-cost 999\r\na=ice-ufrag:Newt\r\na=ice-pwd:P3xnxB/VjU2XmPOSMMIZskuK\r\na=ice-options:trickle\r\na=fingerprint:sha-256 3F:D3:58:EC:8E:67:41:5E:60:B8:77:91:B2:19:4F:3B:03:8B:5B:0A:CD:08:00:3E:46:FC:D2:3A:D8:0E:F7:81\r\na=setup:active\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"
+      },
+      "stats": [
+        {
+          "id": "CPCOm54Drk_eUAgO8i5",
+          "timestamp": 1791158958785.885,
+          "type": "candidate-pair",
+          "bytesDiscardedOnSend": 0,
+          "bytesReceived": 5934,
+          "bytesSent": 5772,
+          "consentRequestsSent": 4,
+          "currentRoundTripTime": 0.001,
+          "lastPacketReceivedTimestamp": 1791158956451,
+          "lastPacketSentTimestamp": 1791158956449,
+          "localCandidateId": "ICOm54Drk",
+          "nominated": true,
+          "packetsDiscardedOnSend": 0,
+          "packetsReceived": 17,
+          "packetsSent": 17,
+          "priority": 7205793488049290000,
+          "remoteCandidateId": "IeUAgO8i5",
+          "requestsReceived": 5,
+          "requestsSent": 5,
+          "responsesReceived": 5,
+          "responsesSent": 5,
+          "state": "succeeded",
+          "totalRoundTripTime": 0.002,
+          "transportId": "T01",
+          "writable": true
+        },
+        {
+          "id": "ICOm54Drk",
+          "timestamp": 1791158958785.885,
+          "type": "local-candidate",
+          "address": "127.0.0.1",
+          "candidateType": "prflx",
+          "foundation": "889948298",
+          "ip": "127.0.0.1",
+          "isRemote": false,
+          "networkType": "unknown",
+          "port": 36950,
+          "priority": 1845501695,
+          "protocol": "udp",
+          "relatedAddress": "0.0.0.0",
+          "relatedPort": 36950,
+          "transportId": "T01",
+          "usernameFragment": "uxFq"
+        },
+        {
+          "id": "Ib+eAyHQs",
+          "timestamp": 1791158958785.885,
+          "type": "local-candidate",
+          "address": "::",
+          "candidateType": "host",
+          "foundation": "2407859244",
+          "ip": "::",
+          "isRemote": false,
+          "networkType": "unknown",
+          "port": 33513,
+          "priority": 2113939711,
+          "protocol": "udp",
+          "transportId": "T01",
+          "usernameFragment": "uxFq"
+        },
+        {
+          "id": "IeUAgO8i5",
+          "timestamp": 1791158958785.885,
+          "type": "remote-candidate",
+          "address": "127.0.0.1",
+          "candidateType": "srflx",
+          "foundation": "3659098809",
+          "ip": "127.0.0.1",
+          "isRemote": true,
+          "port": 58185,
+          "priority": 1677729535,
+          "protocol": "udp",
+          "transportId": "T01",
+          "usernameFragment": "Newt"
+        }
+      ]
+    }
+  ]
+}
